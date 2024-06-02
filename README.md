@@ -10,15 +10,12 @@ A simple Python dependency injection framework.
 from pif import wiring, providers
 
 
-def my_function(a: str = providers.Singleton[str](lambda: "hello wolrd")):
+@wiring.injected
+def my_function(a: str = providers.Singleton[str](lambda: "hello world")):
     return a
 
 
 if __name__ == '__main__':
-    assert isinstance(my_function(), providers.Singleton)
-
-    wiring.wire([__name__])
-
     assert "hello world" == my_function()
 ```
 

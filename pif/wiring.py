@@ -11,28 +11,57 @@
 import functools
 import importlib
 import inspect
+import itertools
 import types
-from typing import Callable
+from typing import Any, Callable
 
 from pif import providers
 
 
-def patch_args_decorator[T: Callable](func: T, patched_kwargs: dict[str, providers.Provider]) -> T:
+def patch_args(
+    signature: inspect.Signature,
+    args: tuple[Any, ...],
+    kwargs: dict[str, Any],
+) -> tuple[tuple[Any, ...], dict[str, Any]]:
+    """
+    Patch the args and kwargs at runtime using the signature for reference.
+
+    :param signature: to lookup method parameters.
+    :param args: provided at runtime
+    :param kwargs: provided at runtime.
+    :return: injected args and kwargs to pass to func.
+    """
+    for i, (name, value) in enumerate(signature.parameters.items()):
+        if isinstance(value.default, providers.Provider) and i >= len(args):
+            if value.kind == inspect.Parameter.POSITIONAL_ONLY:
+                args = (
+                    *args,
+                    *(p.default for p in itertools.islice(signature.parameters.values(), len(args), i)),
+                    value.default(),
+                )
+            if (
+                value.kind in (inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY)
+                and name not in kwargs
+            ):
+                kwargs[name] = value.default()
+    return args, kwargs
+
+
+def injected[T: Callable](func: T) -> T:
     """
     Get a decorated copy of `func` with patched arguments.
 
-    TODO(scottzach1) - add support for positional kwargs.
-
     :param func: to decorate.
-    :param patched_kwargs: the kwargs to patch.
     :return: the decorated function.
     """
+    signature = inspect.signature(func)
+
+    if not any(p for p in signature.parameters.values() if isinstance(p.default, providers.Provider)):
+        return func
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        for keyword in patched_kwargs:
-            if keyword not in kwargs:
-                kwargs[keyword] = patched_kwargs[keyword]()
+        args, kwargs = patch_args(signature, args, kwargs)
 
         return func(*args, **kwargs)
 
@@ -54,22 +83,13 @@ def patch_method[T: Callable | types.FunctionType](func: T) -> T:
     """
     Return a "patched" version of the method provided.
 
-    If no values required patching, the provided function will be returned unchanged..
+    If no values required patching, the provided function will be returned unchanged.
 
     :param func: to patch default values.
     :return: a "patched" version of the method provided.
     """
-    patched_args = {}
-
-    for name, value in inspect.signature(func).parameters.items():
-        if value.kind == inspect.Parameter.POSITIONAL_ONLY:
-            continue  # TODO(scottzach1) Add support for non keyword arguments.
-
-        if isinstance(value.default, providers.Provider):
-            patched_args[name] = value.default
-
-    if patched_args:
-        return patch_args_decorator(func, patched_args)
+    if any(1 for param in inspect.signature(func).parameters.values() if isinstance(param.default, providers.Provider)):
+        return injected(func)
 
     return func
 

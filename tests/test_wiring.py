@@ -3,10 +3,12 @@ from unittest.mock import MagicMock
 
 from pif import providers, wiring
 
-provider = providers.Singleton[str](lambda: "hello")
+
+def provide(s: str) -> providers.Singleton[str]:
+    return providers.Singleton[str](lambda: f"{s}_injected")
 
 
-def my_func(a: str = provider):
+def my_func(a: str = provide("a")):
     """
     Our dummy method to test wiring for the module.
     """
@@ -19,13 +21,13 @@ def test_patch_kwarg():
     """
     sig_before = inspect.signature(my_func)
     doc_before = my_func.__doc__
-    assert provider == my_func()
+    assert isinstance(my_func(), providers.Singleton)
     assert not wiring.is_patched(my_func)
 
     wiring.wire([__name__])
     sig_wired = inspect.signature(my_func)
     doc_wired = my_func.__doc__
-    assert my_func() == "hello"
+    assert my_func() == "a_injected"
     assert sig_before == sig_wired
     assert doc_before == doc_wired
     assert wiring.is_patched(my_func)
@@ -33,7 +35,7 @@ def test_patch_kwarg():
     wiring.unwire([__name__])
     sig_unwired = inspect.signature(my_func)
     doc_unwired = my_func.__doc__
-    assert provider == my_func()
+    assert isinstance(my_func(), providers.Singleton)
     assert not wiring.is_patched(my_func)
     assert sig_before == sig_unwired
     assert doc_before == doc_unwired
@@ -44,17 +46,78 @@ def test_patch_lazy():
     Test that our wiring implementation lazily evaluates providers.
     """
     mock = MagicMock()
-
-    def func(v=None):
-        return v
-
-    assert not mock.call_count
-    patched = wiring.patch_args_decorator(func, {"v": mock})
     assert not mock.call_count
 
-    assert func() is None
+    @wiring.injected
+    def func(v=providers.Singleton[MagicMock](lambda: mock)):
+        return v()
+
     assert not mock.call_count
-    assert isinstance(patched(), MagicMock)
+    assert isinstance(func(), MagicMock)
     assert mock.call_count == 1
-    assert isinstance(patched(), MagicMock)
+    assert isinstance(func(), MagicMock)
     assert mock.call_count == 2
+
+
+def test_patch_positional_only():
+    """
+    Test patching for POSITIONAL_ONLY arguments.
+    """
+
+    @wiring.injected
+    def p1(a, b=provide("b"), c="c_default", /):
+        return a, b, c
+
+    assert p1(None) == (None, "b_injected", "c_default")
+    assert p1(None, None) == (None, None, "c_default")
+
+    @wiring.injected
+    def p2(a, b=None, c=provide("c"), /):
+        return a, b, c
+
+    assert p2(None) == (None, None, "c_injected")
+    assert p2(None, None) == (None, None, "c_injected")
+    assert p2(None, None, "c_override") == (None, None, "c_override")
+
+
+def test_patch_positional():
+    """
+    Test patching for POSITIONAL_OR_KEYWORD arguments.
+    """
+
+    @wiring.injected
+    def p1(a, b=provide("b"), c="c_default"):
+        return a, b, c
+
+    assert p1(None) == (None, "b_injected", "c_default")
+    assert p1(None, None) == (None, None, "c_default")
+    assert p1(a=None) == (None, "b_injected", "c_default")
+    assert p1(a=None, b=None) == (None, None, "c_default")
+
+    @wiring.injected
+    def p2(a, b=None, c=provide("c")):
+        return a, b, c
+
+    assert p2(None) == (None, None, "c_injected")
+    assert p2(None, None) == (None, None, "c_injected")
+    assert p2(None, None, "c_override") == (None, None, "c_override")
+    assert p2(a=None) == (None, None, "c_injected")
+    assert p2(a=None, b=None) == (None, None, "c_injected")
+    assert p2(a=None, b=None, c="c_override") == (None, None, "c_override")
+
+
+def test_patch_positional_or_keyword():
+    """
+    Test patching for VAR_POSITIONAL argument.
+    """
+
+    @wiring.injected
+    def p1(a, b=provide("b"), *c, d="d_default", e=provide("e")):
+        return a, b, *c, d, e
+
+    assert p1("a") == ("a", "b_injected", "d_default", "e_injected")
+    assert p1("a", "b") == ("a", "b", "d_default", "e_injected")
+    assert p1("a", "b", "c1") == ("a", "b", "c1", "d_default", "e_injected")
+    assert p1("a", "b", "c1", "c2") == ("a", "b", "c1", "c2", "d_default", "e_injected")
+    assert p1("a", "b", "c1", "c2", d="d") == ("a", "b", "c1", "c2", "d", "e_injected")
+    assert p1("a", "b", "c1", "c2", d="d", e="e") == ("a", "b", "c1", "c2", "d", "e")
