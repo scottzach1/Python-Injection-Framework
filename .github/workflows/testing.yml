@@ -1,0 +1,64 @@
+name: Testing
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  ruff:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Setup Poetry
+        uses: ./.github/actions/setup-poetry
+      - name: Ruff (linting + formating)
+        id: ruff
+        run: |
+          source .venv/bin/activate
+          pre-commit run --all
+      - name: Generate Badges
+        if: success() || failure()
+        run: |
+          source .venv/bin/activate
+          mkdir -p badges/
+          anybadge --overwrite --label=python --value=3.12+ --file=badges/python.svg --color='dodgerblue'
+          anybadge --overwrite --value="${{ steps.ruff.outcome }}" --label=ruff --file=badges/ruff.svg success=green failure=red
+          anybadge --overwrite --label=version --value="v$(poetry version --short)" --file=badges/version.svg --color='green'
+      - name: Publish badges to GitHub Pages
+        if: (success() || failure()) && (github.ref_name == github.event.repository.default_branch)
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: badges/
+          clean: false
+
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Setup Poetry
+        uses: ./.github/actions/setup-poetry
+      - name: Run Pytest
+        id: pytest
+        run: |
+          source .venv/bin/activate
+          coverage run -m pytest tests/
+      - name: Generate Badges
+        if: success() || failure()
+        run: |
+          source .venv/bin/activate
+          coverage report
+          mkdir -p badges/
+          anybadge --overwrite --value="${{ steps.pytest.outcome }}" --label=pytest --file=badges/pytest.svg success=green failure=red
+          anybadge --overwrite --value="$(coverage report --format=total)" --file=badges/coverage.svg coverage
+      - name: Publish badges to GitHub Pages
+        if: (success() || failure()) && (github.ref_name == github.event.repository.default_branch)
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: badges/
+          clean: false

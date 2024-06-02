@@ -1,5 +1,11 @@
 # Python Injection Framework (PIF)
 
+[![python](https://github.com/scottzach1/Python-Injector-Framework/blob/gh-pages/python.svg?raw=true)](https://github.com/scottzach1/Python-Injector-Framework/)
+[![version](https://github.com/scottzach1/Python-Injector-Framework/blob/gh-pages/version.svg?raw=true)](https://github.com/scottzach1/Python-Injector-Framework/)
+[![coverage](https://github.com/scottzach1/Python-Injector-Framework/blob/gh-pages/coverage.svg?raw=true)](https://github.com/scottzach1/Python-Injector-Framework/)
+[![pytest](https://github.com/scottzach1/Python-Injector-Framework/blob/gh-pages/pytest.svg?raw=true)](https://github.com/scottzach1/Python-Injector-Framework/)
+[![ruff](https://github.com/scottzach1/Python-Injector-Framework/blob/gh-pages/ruff.svg?raw=true)](https://github.com/scottzach1/Python-Injector-Framework/)
+
 A simple Python dependency injection framework.
 
 ## Usage
