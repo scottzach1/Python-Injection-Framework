@@ -29,6 +29,8 @@ class ExistingSingleton[T](Provider):
     Provide an existing object instance.
     """
 
+    __slots__ = ("t",)
+
     def __init__(self, t: T):
         self.t = t
 
@@ -43,6 +45,8 @@ class Singleton[T](Provider):
     """
     Provide a singleton instance.
     """
+
+    __slots__ = ("_func", "_args", "_kwargs", "_result", "_depends")
 
     def __init__(self, func: Callable[[...], T], *args, **kwargs):
         self._func = func
