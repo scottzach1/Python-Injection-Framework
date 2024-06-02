@@ -12,12 +12,12 @@ import functools
 import importlib
 import inspect
 import types
-from typing import Any, Callable
+from typing import Callable
 
 from pif import providers
 
 
-def patch_args_decorator[T: Callable](func: T, patched_kwargs: dict[str, Any]) -> T:
+def patch_args_decorator[T: Callable](func: T, patched_kwargs: dict[str, providers.Provider]) -> T:
     """
     Get a decorated copy of `func` with patched arguments.
 
@@ -30,8 +30,11 @@ def patch_args_decorator[T: Callable](func: T, patched_kwargs: dict[str, Any]) -
 
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        patched_kwargs.update(kwargs)
-        return func(*args, **patched_kwargs)
+        for keyword in patched_kwargs:
+            if keyword not in kwargs:
+                kwargs[keyword] = patched_kwargs[keyword]()
+
+        return func(*args, **kwargs)
 
     wrapper._patched_func = func
     return wrapper
@@ -63,7 +66,7 @@ def patch_method[T: Callable | types.FunctionType](func: T) -> T:
             continue  # TODO(scottzach1) Add support for non keyword arguments.
 
         if isinstance(value.default, providers.Provider):
-            patched_args[name] = value.default()
+            patched_args[name] = value.default
 
     if patched_args:
         return patch_args_decorator(func, patched_args)

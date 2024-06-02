@@ -1,4 +1,5 @@
 import inspect
+from unittest.mock import MagicMock
 
 from pif import providers, wiring
 
@@ -36,3 +37,24 @@ def test_patch_kwarg():
     assert not wiring.is_patched(my_func)
     assert sig_before == sig_unwired
     assert doc_before == doc_unwired
+
+
+def test_patch_lazy():
+    """
+    Test that our wiring implementation lazily evaluates providers.
+    """
+    mock = MagicMock()
+
+    def func(v=None):
+        return v
+
+    assert not mock.call_count
+    patched = wiring.patch_args_decorator(func, {"v": mock})
+    assert not mock.call_count
+
+    assert func() is None
+    assert not mock.call_count
+    assert isinstance(patched(), MagicMock)
+    assert mock.call_count == 1
+    assert isinstance(patched(), MagicMock)
+    assert mock.call_count == 2
