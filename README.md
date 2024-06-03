@@ -12,6 +12,8 @@ A simple Python dependency injection framework.
 
 **This project is under active development. The following example does not represent the final state for the project.**
 
+### Dependency Injection
+
 The injection framework is configured to inject any default values for method arguments that are instances
 of `providers.Provider`.
 
@@ -21,7 +23,7 @@ arguments at runtime.
 All dependency injection is lazily evaluated so providers are only evaluated when a method is called. This approach is
 optimal as it reduces necessary computation for expensive services and reduces
 
-### Decorator Injection
+#### Decorator Injection
 
 With this approach you can automatically inject functions at load time using the `@wiring.injected` decorator.
 
@@ -30,7 +32,7 @@ from pif import wiring, providers
 
 
 @wiring.injected  # <- automatically injects providers.Provider default arguments!
-def my_function(a: str = providers.Singleton[str](lambda: "hello world")):
+def my_function(a: str = providers.Factory[str](lambda: "hello world")):
     return a
 
 
@@ -46,12 +48,71 @@ With this approach you can wire all methods in the specified modules.
 from pif import wiring, providers
 
 
-def my_function(a: str = providers.Singleton[str](lambda: "hello world")):
+def my_function(a: str = providers.Factory[str](lambda: "hello world")):
     return a
 
 
 if __name__ == "__main__":
     wiring.wire([__name__])  # <- dynamically inject methods with providers.Provider default arguments!
+
+    assert "hello world" == my_function()
+```
+
+### Overriding
+
+This package provides a simple mechanism to override providers. This can be very useful when it comes to mocking
+services for testing or dynamically patching application behavior based on application configuration.
+
+#### Standard Overriding
+
+If you want to patch a value all you need to do is call `.override()` on the provider in question.
+
+```python
+from pif import wiring, providers
+
+StringProvider = providers.Factory[str](lambda: "hello world")
+
+
+@wiring.injected
+def my_function(a: str = StringProvider):
+    return a
+
+
+if __name__ == "__main__":
+    assert "hello world" == my_function()
+
+    override = StringProvider.override(providers.Factory[str](lambda: "overridden_1"))
+
+    assert "overridden_1"
+```
+
+### Context Managers
+
+If you want more control around the override lifecycles then you may use the `Override` context manager.
+
+```python
+from pif import wiring, providers
+
+StringProvider = providers.Factory[str](lambda: "hello world")
+
+
+@wiring.injected
+def my_function(a: str = StringProvider):
+    return a
+
+
+if __name__ == "__main__":
+    assert "hello world" == my_function()
+
+    OverrideProvider = providers.Factory[str](lambda: "overridden_1")
+
+    with StringProvider.override(OverrideProvider):
+        assert "overridden_1" == my_function()
+
+        with OverrideProvider.override(providers.Factory[str]("overridden_2")):
+            assert "overridden_2" == my_function() # You can even stack overrides!!
+
+        assert "overridden_1" == my_function()
 
     assert "hello world" == my_function()
 ```

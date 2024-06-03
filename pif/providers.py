@@ -62,8 +62,14 @@ class Override[ProviderT: Provider]:
     def __enter__(self) -> Self:
         yield self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def disable(self) -> None:
+        """
+        Disable the currently active override.
+        """
         self._base._override = self._before
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.disable()
 
 
 class ExistingSingleton[T](Provider):
