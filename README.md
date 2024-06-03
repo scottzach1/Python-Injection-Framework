@@ -118,6 +118,10 @@ if __name__ == "__main__":
     assert "hello world" == my_function()
 ```
 
+## Examples
+
+If you would like to see more examples, feel free to check out [examples/](examples).
+
 ## Authors
 
 | [![Zac Scott](https://avatars.githubusercontent.com/u/38968222?s=128&v=4)](https://github.com/scottzach1) |
