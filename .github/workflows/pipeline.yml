@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - '**'
   pull_request:
     branches:
       - main
@@ -13,6 +15,7 @@ permissions:
 
 jobs:
   ruff:
+    name: "Ruff Linting"
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -41,6 +44,7 @@ jobs:
 
   pytest:
     runs-on: ubuntu-latest
+    name: "Pytest Tests"
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -65,3 +69,25 @@ jobs:
         with:
           folder: badges/
           clean: false
+
+  pypi-publish:
+    name: Upload release to PyPI
+    runs-on: ubuntu-latest
+    needs: [ ruff, pytest ]
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    environment:
+      name: pypi
+      url: https://pypi.org/p/python-injector-framework
+    permissions:
+      id-token: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Setup Poetry
+        uses: ./.github/actions/setup-poetry
+      - name: Build Project
+        run: |
+          source .venv/bin/activate
+          poetry build
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

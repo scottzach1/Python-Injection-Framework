@@ -12,6 +12,12 @@ A simple Python dependency injection framework.
 
 **This project is under active development. The following example does not represent the final state for the project.**
 
+You can install this project from pypi.
+
+```shell
+pip install python-injection-framework
+```
+
 ### Dependency Injection
 
 The injection framework is configured to inject any default values for method arguments that are instances
@@ -121,6 +127,32 @@ if __name__ == "__main__":
 ## Examples
 
 If you would like to see more examples, feel free to check out [examples/](examples).
+
+## Contributing
+
+1. Clone the repository and configure Poetry 🪄
+
+    ```shell
+    git clone git@github.com:scottzach1/Python-Injection-Framework.git
+    cd Python-Injection-Framework
+    poetry install
+    ```
+
+2. Configure pre-commit hooks 🪝
+
+    ```shell
+    pre-commit install
+    ```
+
+3. Write your changes! 💻️
+
+4. Run test cases 🧪
+
+    ```shell
+    pytest tests/
+    ```
+
+5. Submit a Pull Request ↖️
 
 ## Authors
 
