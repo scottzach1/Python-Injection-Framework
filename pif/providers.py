@@ -9,6 +9,7 @@
 #  https://github.com/scottzach1/python-injector-framework
 
 import abc
+import functools
 from typing import Callable
 
 
@@ -46,17 +47,15 @@ class Singleton[T](Provider):
     Provide a singleton instance.
     """
 
-    __slots__ = ("_func", "_args", "_kwargs", "_result", "_depends")
+    __slots__ = ("_func", "_func", "_result", "_depends")
 
     def __init__(self, func: Callable[[...], T], *args, **kwargs):
-        self._func = func
-        self._args = args
-        self._kwargs = kwargs
+        self._func = functools.partial(func, *args, **kwargs)
         self._result = UNSET
 
     def __call__(self) -> T:
         if self._result is UNSET:
-            self._result = self._func(*self._args, **self._kwargs)
+            self._result = self._func()
         return self._result
 
 
@@ -65,12 +64,10 @@ class Factory[T](Provider):
     Generate a new instance every call.
     """
 
-    __slots__ = ("_func", "_args", "_kwargs", "_depends")
+    __slots__ = ("_func", "_depends")
 
     def __init__(self, func: Callable[[...], T], *args, **kwargs):
-        self._func = func
-        self._args = args
-        self._kwargs = kwargs
+        self._func = functools.partial(func, *args, **kwargs)
 
     def __call__(self) -> T:
-        return self._func(*self._args, **self._kwargs)
+        return self._func()
