@@ -58,3 +58,19 @@ class Singleton[T](Provider):
         if self._result is UNSET:
             self._result = self._func(*self._args, **self._kwargs)
         return self._result
+
+
+class Factory[T](Provider):
+    """
+    Generate a new instance every call.
+    """
+
+    __slots__ = ("_func", "_args", "_kwargs", "_depends")
+
+    def __init__(self, func: Callable[[...], T], *args, **kwargs):
+        self._func = func
+        self._args = args
+        self._kwargs = kwargs
+
+    def __call__(self) -> T:
+        return self._func(*self._args, **self._kwargs)
