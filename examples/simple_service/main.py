@@ -18,7 +18,7 @@ ApiTokenProvider = providers.BlankProvider()
 ApiClientProvider = providers.Singleton[ApiClient](ApiClient, domain=ApiDomainProvider, token=ApiTokenProvider)
 
 
-@wiring.injected
+@wiring.inject
 def main(client: ApiClient = ApiClientProvider):
     """
     Your application logic.

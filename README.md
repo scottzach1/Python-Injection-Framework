@@ -31,7 +31,7 @@ With this approach you can automatically inject functions at load time using the
 from pif import wiring, providers
 
 
-@wiring.injected  # <- automatically injects providers.Provider default arguments!
+@wiring.inject  # <- automatically injects providers.Provider default arguments!
 def my_function(a: str = providers.ExistingSingleton("hello world")):
     return a
 
@@ -74,7 +74,7 @@ from pif import wiring, providers
 StringProvider = providers.ExistingSingleton("hello world")
 
 
-@wiring.injected
+@wiring.inject
 def my_function(a: str = StringProvider):
     return a
 
@@ -97,7 +97,7 @@ from pif import wiring, providers
 StringProvider = providers.ExistingSingleton("hello world")
 
 
-@wiring.injected
+@wiring.inject
 def my_function(a: str = StringProvider):
     return a
 

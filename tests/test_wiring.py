@@ -48,7 +48,7 @@ def test_patch_lazy():
     mock = MagicMock()
     assert not mock.call_count
 
-    @wiring.injected
+    @wiring.inject
     def func(v=providers.Singleton[MagicMock](lambda: mock)):
         return v()
 
@@ -64,14 +64,14 @@ def test_patch_positional_only():
     Test patching for POSITIONAL_ONLY arguments.
     """
 
-    @wiring.injected
+    @wiring.inject
     def p1(a, b=provide("b"), c="c_default", /):
         return a, b, c
 
     assert p1(None) == (None, "b_injected", "c_default")
     assert p1(None, None) == (None, None, "c_default")
 
-    @wiring.injected
+    @wiring.inject
     def p2(a, b=None, c=provide("c"), /):
         return a, b, c
 
@@ -85,7 +85,7 @@ def test_patch_positional():
     Test patching for POSITIONAL_OR_KEYWORD arguments.
     """
 
-    @wiring.injected
+    @wiring.inject
     def p1(a, b=provide("b"), c="c_default"):
         return a, b, c
 
@@ -94,7 +94,7 @@ def test_patch_positional():
     assert p1(a=None) == (None, "b_injected", "c_default")
     assert p1(a=None, b=None) == (None, None, "c_default")
 
-    @wiring.injected
+    @wiring.inject
     def p2(a, b=None, c=provide("c")):
         return a, b, c
 
@@ -111,7 +111,7 @@ def test_patch_positional_or_keyword():
     Test patching for VAR_POSITIONAL argument.
     """
 
-    @wiring.injected
+    @wiring.inject
     def p1(a, b=provide("b"), *c, d="d_default", e=provide("e")):
         return a, b, *c, d, e
 

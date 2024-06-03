@@ -47,7 +47,7 @@ def patch_args(
     return args, kwargs
 
 
-def injected[T: Callable](func: T) -> T:
+def inject[T: Callable](func: T) -> T:
     """
     Get a decorated copy of `func` with patched arguments.
 
@@ -89,7 +89,7 @@ def patch_method[T: Callable | types.FunctionType](func: T) -> T:
     :return: a "patched" version of the method provided.
     """
     if any(1 for param in inspect.signature(func).parameters.values() if isinstance(param.default, providers.Provider)):
-        return injected(func)
+        return inject(func)
 
     return func
 
