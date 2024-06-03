@@ -5,6 +5,7 @@ description = "Another Python Dependency injector framework."
 authors = ["Zac Scott <zac.scott11@gmail.com>"]
 license = "BSD-3"
 readme = "README.md"
+packages = [{ include = "pif" }]
 
 [tool.poetry.dependencies]
 python = "^3.12"
