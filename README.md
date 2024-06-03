@@ -32,7 +32,7 @@ from pif import wiring, providers
 
 
 @wiring.injected  # <- automatically injects providers.Provider default arguments!
-def my_function(a: str = providers.Factory[str](lambda: "hello world")):
+def my_function(a: str = providers.ExistingSingleton("hello world")):
     return a
 
 
@@ -48,7 +48,7 @@ With this approach you can wire all methods in the specified modules.
 from pif import wiring, providers
 
 
-def my_function(a: str = providers.Factory[str](lambda: "hello world")):
+def my_function(a: str = providers.ExistingSingleton("hello world")):
     return a
 
 
@@ -65,12 +65,13 @@ services for testing or dynamically patching application behavior based on appli
 
 #### Standard Overriding
 
-If you want to patch a value all you need to do is call `.override()` on the provider in question.
+If you want to patch a value all you need to do is call `.override()` on the provider in question. If you are wanting to
+override an existing singleton you may call the convenience method `.override_existing()`.
 
 ```python
 from pif import wiring, providers
 
-StringProvider = providers.Factory[str](lambda: "hello world")
+StringProvider = providers.ExistingSingleton("hello world")
 
 
 @wiring.injected
@@ -81,7 +82,7 @@ def my_function(a: str = StringProvider):
 if __name__ == "__main__":
     assert "hello world" == my_function()
 
-    override = StringProvider.override(providers.Factory[str](lambda: "overridden_1"))
+    override = StringProvider.override_existing("overridden_1")
 
     assert "overridden_1"
 ```
@@ -93,7 +94,7 @@ If you want more control around the override lifecycles then you may use the `Ov
 ```python
 from pif import wiring, providers
 
-StringProvider = providers.Factory[str](lambda: "hello world")
+StringProvider = providers.ExistingSingleton("hello world")
 
 
 @wiring.injected
@@ -104,13 +105,13 @@ def my_function(a: str = StringProvider):
 if __name__ == "__main__":
     assert "hello world" == my_function()
 
-    OverrideProvider = providers.Factory[str](lambda: "overridden_1")
+    OverrideProvider = providers.ExistingSingleton("overridden_1")
 
-    with StringProvider.override(OverrideProvider):
+    with StringProvider.override_existing(OverrideProvider):
         assert "overridden_1" == my_function()
 
-        with OverrideProvider.override(providers.Factory[str]("overridden_2")):
-            assert "overridden_2" == my_function() # You can even stack overrides!!
+        with OverrideProvider.override_existing("overridden_2"):
+            assert "overridden_2" == my_function()  # You can even stack overrides!!
 
         assert "overridden_1" == my_function()
 

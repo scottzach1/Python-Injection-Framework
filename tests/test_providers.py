@@ -1,4 +1,6 @@
-from pif import providers
+import pytest
+
+from pif import exceptions, providers
 
 
 def test_override_standard_shallow():
@@ -108,3 +110,92 @@ def test_override_contextmanager_nested():
     assert provide_a() == "a"
     assert provide_b() == "b"
     assert provide_c() == "c"
+
+
+def test_blank_provider():
+    """
+    Checking the blank provider raises a BlankProviderException when it hasn't been overridden.
+    """
+    provider = providers.BlankProvider()
+
+    with pytest.raises(exceptions.BlankProviderException):
+        provider()
+
+    with provider.override_existing("some_value"):
+        assert provider() == "some_value"
+
+    with pytest.raises(exceptions.BlankProviderException):
+        provider()
+
+
+def test_existing_singleton():
+    """
+    Checking the existing singleton provider returns the exact same object.
+    """
+    obj_1 = object()
+    obj_2 = object()
+
+    provider = providers.ExistingSingleton(obj_1)
+
+    assert obj_1 is not obj_2
+    assert obj_1 is provider()
+    assert obj_1 is provider()
+
+    with provider.override_existing(obj_2):
+        assert obj_2 is not obj_1
+        assert obj_2 is provider()
+        assert obj_2 is provider()
+
+    assert obj_1 is not obj_2
+    assert obj_1 is provider()
+    assert obj_1 is provider()
+
+
+def test_singleton():
+    """
+    Checking the singleton provider creates only once.
+    """
+    provider = providers.Singleton[dict](dict, a=1, b=2)
+
+    dict_1 = provider()
+    dict_2 = provider()
+
+    with provider.override(providers.Singleton[dict](dict, a=1, b=2)):
+        dict_alt = provider()
+
+    dict_3 = provider()
+
+    assert dict_1 == {"a": 1, "b": 2}
+    assert dict_1 is not {"a": 1, "b": 2}
+    assert dict_2 is dict_1
+    assert dict_3 is dict_1
+
+    assert dict_1 == dict_alt
+    assert dict_1 is not dict_alt
+
+
+def test_factory():
+    """
+    Checking the factory provider creates every single time.
+    """
+    provider = providers.Factory[dict](dict, a=1, b=2)
+
+    dict_1 = provider()
+    dict_2 = provider()
+
+    with provider.override(providers.Factory[dict](dict, a=1, b=2)):
+        dict_alt = provider()
+
+    dict_3 = provider()
+
+    assert dict_1 == {"a": 1, "b": 2}
+    assert dict_1 is not {"a": 1, "b": 2}
+
+    assert dict_2 == dict_1
+    assert dict_2 is not dict_1
+
+    assert dict_3 == dict_1
+    assert dict_3 is not dict_1
+
+    assert dict_alt == dict_1
+    assert dict_alt is not dict_1

@@ -14,6 +14,8 @@ import abc
 import functools
 from typing import Callable, Self
 
+from pif import exceptions
+
 
 class Provider[T](abc.ABC):
     """
@@ -44,6 +46,12 @@ class Provider[T](abc.ABC):
         """
         return Override(self, provider)
 
+    def override_existing[U](self, value: U) -> Override[Provider[T]]:
+        """
+        Override the current provider with an existing singleton.
+        """
+        return self.override(ExistingSingleton(value))
+
 
 class Override[ProviderT: Provider]:
     """
@@ -70,6 +78,17 @@ class Override[ProviderT: Provider]:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.disable()
+
+
+class BlankProvider(Provider):
+    """
+    A placeholder for a provider.
+    """
+
+    __slots__ = tuple()
+
+    def _evaluate(self) -> None:
+        raise exceptions.BlankProviderException()
 
 
 class ExistingSingleton[T](Provider):
