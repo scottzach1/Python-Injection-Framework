@@ -8,9 +8,11 @@
 #
 #  https://github.com/scottzach1/python-injector-framework
 
+from __future__ import annotations
+
 import abc
 import functools
-from typing import Callable
+from typing import Callable, Self
 
 
 class Provider[T](abc.ABC):
@@ -18,11 +20,50 @@ class Provider[T](abc.ABC):
     Signposts something that can be injected.
     """
 
-    @abc.abstractmethod
+    _override: Provider | None = None
+
     def __call__(self, *args, **kwargs) -> T:
         """
-        Evaluate the value to provide.
+        Evaluate the provider, will select override if present.
         """
+        if self._override:
+            return self._override()
+
+        return self._evaluate()
+
+    @abc.abstractmethod
+    def _evaluate(self) -> T:
+        """
+        Define the behavior to evaluate the provided value.
+        """
+        return self()
+
+    def override[U: Provider | None](self, provider: U) -> Override[U]:
+        """
+        Override the current providers value with another provider.
+        """
+        return Override(self, provider)
+
+
+class Override[ProviderT: Provider]:
+    """
+    A context manager to implement overrides for providers.
+    """
+
+    __slots__ = ("_base", "_override", "_before")
+
+    def __init__(self, base: Provider, override: ProviderT | None = None):
+        # noinspection PyProtectedMember
+        self._before = base._override
+        self._base = base
+        self._override = override
+        base._override = override
+
+    def __enter__(self) -> Self:
+        yield self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self._base._override = self._before
 
 
 class ExistingSingleton[T](Provider):
@@ -35,7 +76,7 @@ class ExistingSingleton[T](Provider):
     def __init__(self, t: T):
         self.t = t
 
-    def __call__(self) -> T:
+    def _evaluate(self) -> T:
         return self.t
 
 
@@ -53,7 +94,7 @@ class Singleton[T](Provider):
         self._func = functools.partial(func, *args, **kwargs)
         self._result = UNSET
 
-    def __call__(self) -> T:
+    def _evaluate(self) -> T:
         if self._result is UNSET:
             self._result = self._func()
         return self._result
@@ -69,5 +110,5 @@ class Factory[T](Provider):
     def __init__(self, func: Callable[[...], T], *args, **kwargs):
         self._func = functools.partial(func, *args, **kwargs)
 
-    def __call__(self) -> T:
+    def _evaluate(self) -> T:
         return self._func()
