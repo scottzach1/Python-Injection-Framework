@@ -12,7 +12,7 @@ from pif import exceptions
 from pif.providers.provider import Provider
 
 
-class BlankProvider(Provider):
+class Blank(Provider):
     """
     A placeholder for a provider.
     """

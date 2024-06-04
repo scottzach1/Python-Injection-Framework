@@ -13,8 +13,8 @@ class ApiClient:
 
 
 # Define some providers to use for injection.
-ApiDomainProvider = providers.BlankProvider()
-ApiTokenProvider = providers.BlankProvider()
+ApiDomainProvider = providers.Blank()
+ApiTokenProvider = providers.Blank()
 ApiClientProvider = providers.Singleton[ApiClient](ApiClient, domain=ApiDomainProvider, token=ApiTokenProvider)
 
 

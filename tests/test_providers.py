@@ -118,7 +118,7 @@ def test_blank_provider():
     """
     Checking the blank provider raises a BlankProviderException when it hasn't been overridden.
     """
-    provider = providers.BlankProvider()
+    provider = providers.Blank()
 
     with pytest.raises(exceptions.BlankProviderException):
         provider()
