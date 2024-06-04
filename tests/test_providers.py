@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 import pytest
 
 from pif import exceptions, providers
@@ -199,3 +201,109 @@ def test_factory():
 
     assert dict_alt == dict_1
     assert dict_alt is not dict_1
+
+
+def test_transitive_factory_wired():
+    """
+    Checking the factory provider evaluates Provider args and kwargs.
+    """
+    model = namedtuple("Model", "a b")
+
+    provider_a = providers.Factory[str](lambda: "a")
+    provider_b = providers.Factory[str](lambda: "b")
+
+    provider = providers.Factory[tuple](model, provider_a, b=provider_b)
+
+    assert provider_a() == "a"
+    assert provider_b() == "b"
+
+    model_1 = provider()
+    model_2 = provider()
+    assert model("a", "b") == model_1
+    assert model_1 == model_2
+    assert model_1 is not model_2
+
+
+def test_transitive_factory_override():
+    """
+    Checking the factory provider generates different value when Provider arg and kwarg is overridden.
+    """
+    model = namedtuple("Model", "a b")
+
+    provider_a = providers.Factory[str](lambda: "a")
+    provider_b = providers.Factory[str](lambda: "b")
+    assert provider_a() == "a"
+    assert provider_b() == "b"
+
+    provider = providers.Factory[tuple](model, provider_a, b=provider_b)
+
+    model_1 = provider()
+    model_2 = provider()
+    assert model("a", "b") == model_1
+    assert model_1 == model_2
+    assert model_1 is not model_2
+
+    with (
+        provider_a.override_existing("b"),
+        provider_b.override_existing("a"),
+    ):
+        assert provider_a() == "b"
+        assert provider_b() == "a"
+
+        model_3 = provider()
+        model_4 = provider()
+        assert model("b", "a") == model_3
+        assert model_3 == model_4
+        assert model_3 is not model_4
+
+    model_5 = provider()
+    model_6 = provider()
+    assert model("a", "b") == model_5
+    assert model_5 == model_6
+    assert model_5 is not model_6
+
+
+def test_transitive_singleton_wired():
+    """
+    Checking the singleton provider evaluates Provider args and kwargs.
+    """
+    model = namedtuple("Model", "a b")
+
+    provider_a = providers.Singleton[str](lambda: "a")
+    provider_b = providers.Singleton[str](lambda: "b")
+    assert provider_a() == "a"
+    assert provider_b() == "b"
+
+    provider = providers.Singleton[tuple](model, provider_a, provider_b)
+
+    model_1 = provider()
+    model_2 = provider()
+    assert model("a", "b") == model_1
+    assert model_1 == model_2
+    assert model_1 is model_2
+
+
+def test_transitive_singleton_override():
+    """
+    Checking the singleton provide retains cached value even when Provider arg and kwarg is overridden.
+    """
+    model = namedtuple("Model", "a b")
+
+    provider_a = providers.Singleton[str](lambda: "a")
+    provider_b = providers.Singleton[str](lambda: "b")
+    assert provider_a() == "a"
+    assert provider_b() == "b"
+
+    provider = providers.Singleton[tuple](model, provider_a, provider_b)
+
+    model_1 = provider()
+    model_2 = provider()
+    assert model("a", "b") == model_1
+    assert model_1 == model_2
+    assert model_1 is model_2
+
+    with (
+        provider_a.override_existing("b"),
+        provider_b.override_existing("a"),
+    ):
+        assert model_1 == provider()  # Overriding does not change the cached value.
