@@ -15,7 +15,7 @@ import itertools
 import types
 from typing import Any, Callable
 
-from pif import providers
+from pif.providers.provider import Provider
 
 
 def patch_args(
@@ -32,7 +32,7 @@ def patch_args(
     :return: injected args and kwargs to pass to func.
     """
     for i, (name, value) in enumerate(signature.parameters.items()):
-        if isinstance(value.default, providers.Provider) and i >= len(args):
+        if isinstance(value.default, Provider) and i >= len(args):
             if value.kind == inspect.Parameter.POSITIONAL_ONLY:
                 args = (
                     *args,
@@ -54,9 +54,12 @@ def inject[T: Callable](func: T) -> T:
     :param func: to decorate.
     :return: the decorated function.
     """
-    signature = inspect.signature(func)
+    try:
+        signature = inspect.signature(func)
+    except ValueError:
+        return func  # We cannot derive signature from provided callable.
 
-    if not any(p for p in signature.parameters.values() if isinstance(p.default, providers.Provider)):
+    if not any(p for p in signature.parameters.values() if isinstance(p.default, Provider)):
         return func
 
     @functools.wraps(func)
@@ -88,7 +91,7 @@ def patch_method[T: Callable | types.FunctionType](func: T) -> T:
     :param func: to patch default values.
     :return: a "patched" version of the method provided.
     """
-    if any(1 for param in inspect.signature(func).parameters.values() if isinstance(param.default, providers.Provider)):
+    if any(1 for param in inspect.signature(func).parameters.values() if isinstance(param.default, Provider)):
         return inject(func)
 
     return func

@@ -11,10 +11,7 @@
 from __future__ import annotations
 
 import abc
-import functools
-from typing import Callable, Self
-
-from pif import exceptions
+from typing import Self
 
 
 class Provider[T](abc.ABC):
@@ -50,6 +47,8 @@ class Provider[T](abc.ABC):
         """
         Override the current provider with an existing singleton.
         """
+        from .existing_singleton import ExistingSingleton
+
         return self.override(ExistingSingleton(value))
 
 
@@ -78,62 +77,3 @@ class Override[ProviderT: Provider]:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.disable()
-
-
-class BlankProvider(Provider):
-    """
-    A placeholder for a provider.
-    """
-
-    __slots__ = tuple()
-
-    def _evaluate(self) -> None:
-        raise exceptions.BlankProviderException()
-
-
-class ExistingSingleton[T](Provider):
-    """
-    Provide an existing object instance.
-    """
-
-    __slots__ = ("t",)
-
-    def __init__(self, t: T):
-        self.t = t
-
-    def _evaluate(self) -> T:
-        return self.t
-
-
-UNSET = object()
-
-
-class Singleton[T](Provider):
-    """
-    Provide a singleton instance.
-    """
-
-    __slots__ = ("_func", "_func", "_result", "_depends")
-
-    def __init__(self, func: Callable[[...], T], *args, **kwargs):
-        self._func = functools.partial(func, *args, **kwargs)
-        self._result = UNSET
-
-    def _evaluate(self) -> T:
-        if self._result is UNSET:
-            self._result = self._func()
-        return self._result
-
-
-class Factory[T](Provider):
-    """
-    Generate a new instance every call.
-    """
-
-    __slots__ = ("_func", "_depends")
-
-    def __init__(self, func: Callable[[...], T], *args, **kwargs):
-        self._func = functools.partial(func, *args, **kwargs)
-
-    def _evaluate(self) -> T:
-        return self._func()
