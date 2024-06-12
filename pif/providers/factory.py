@@ -9,20 +9,24 @@
 #  https://github.com/scottzach1/python-injector-framework
 
 import functools
-from typing import Callable
+from typing import Callable, TypeVar
 
 from pif.providers.provider import Provider
 from pif.providers.util import intercept_args
 
+__all__ = ("Factory",)
 
-class Factory[T](Provider):
+T = TypeVar("T")
+
+
+class Factory(Provider):
     """
     Generate a new instance every call.
     """
 
     __slots__ = ("_func", "_depends")
 
-    def __init__(self, func: Callable[[...], T], *args, **kwargs):
+    def __init__(self, func: Callable[..., T], *args, **kwargs):
         self._func = functools.partial(intercept_args(func), *args, **kwargs)
 
     def _evaluate(self) -> T:

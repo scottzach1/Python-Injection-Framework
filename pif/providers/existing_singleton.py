@@ -7,11 +7,16 @@
 #        Zac Scott (github.com/scottzach1)
 #
 #  https://github.com/scottzach1/python-injector-framework
+from typing import TypeVar
 
 from pif.providers.provider import Provider
 
+__all__ = ("ExistingSingleton",)
 
-class ExistingSingleton[T](Provider):
+T = TypeVar("T")
+
+
+class ExistingSingleton(Provider):
     """
     Provide an existing object instance.
     """

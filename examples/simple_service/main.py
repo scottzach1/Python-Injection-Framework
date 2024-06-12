@@ -15,7 +15,7 @@ class ApiClient:
 # Define some providers to use for injection.
 ApiDomainProvider = providers.Blank()
 ApiTokenProvider = providers.Blank()
-ApiClientProvider = providers.Singleton[ApiClient](ApiClient, domain=ApiDomainProvider, token=ApiTokenProvider)
+ApiClientProvider = providers.Singleton(ApiClient, domain=ApiDomainProvider, token=ApiTokenProvider)
 
 
 @wiring.inject

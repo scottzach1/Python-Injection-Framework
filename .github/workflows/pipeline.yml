@@ -20,6 +20,11 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Setup Poetry
         uses: ./.github/actions/setup-poetry
       - name: Ruff (linting + formating)
@@ -45,9 +50,17 @@ jobs:
   pytest:
     runs-on: ubuntu-latest
     name: "Pytest Tests"
+    strategy:
+      matrix:
+        python-version: [ "3.10", "3.11", "3.12" ]
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Setup Poetry
         uses: ./.github/actions/setup-poetry
       - name: Run Pytest

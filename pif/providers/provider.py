@@ -11,10 +11,15 @@
 from __future__ import annotations
 
 import abc
-from typing import Self
+from typing import Generic, TypeVar
+
+__all__ = ("Provider", "Override")
+
+T = TypeVar("T")
+U = TypeVar("U")
 
 
-class Provider[T](abc.ABC):
+class Provider(abc.ABC, Generic[T]):
     """
     Signposts something that can be injected.
     """
@@ -37,13 +42,13 @@ class Provider[T](abc.ABC):
         """
         return self()
 
-    def override[U: Provider | None](self, provider: U) -> Override[U]:
+    def override(self, provider: Provider[U] | None) -> Override[Provider[U] | None]:
         """
         Override the current providers value with another provider.
         """
         return Override(self, provider)
 
-    def override_existing[U](self, value: U) -> Override[Provider[T]]:
+    def override_existing(self, value: U) -> Override[Provider[U]]:
         """
         Override the current provider with an existing singleton.
         """
@@ -52,21 +57,21 @@ class Provider[T](abc.ABC):
         return self.override(ExistingSingleton(value))
 
 
-class Override[ProviderT: Provider]:
+class Override(Generic[T]):
     """
     A context manager to implement overrides for providers.
     """
 
     __slots__ = ("_base", "_override", "_before")
 
-    def __init__(self, base: Provider, override: ProviderT | None = None):
+    def __init__(self, base: Provider, override: Provider[T] | None = None):
         # noinspection PyProtectedMember
         self._before = base._override
         self._base = base
         self._override = override
         base._override = override
 
-    def __enter__(self) -> Self:
+    def __enter__(self) -> Override[T]:
         yield self
 
     def disable(self) -> None:

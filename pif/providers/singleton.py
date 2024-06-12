@@ -9,15 +9,18 @@
 #  https://github.com/scottzach1/python-injector-framework
 
 import functools
-from typing import Callable
+from typing import Callable, TypeVar
 
 from pif.providers.provider import Provider
 from pif.providers.util import intercept_args
 
+__all__ = ("Singleton",)
+
+T = TypeVar("T")
 UNSET = object()
 
 
-class Singleton[T](Provider):
+class Singleton(Provider[T]):
     """
     Provide a singleton instance.
 
@@ -26,7 +29,7 @@ class Singleton[T](Provider):
 
     __slots__ = ("_func", "_func", "_result", "_depends")
 
-    def __init__(self, func: Callable[[...], T], *args, **kwargs):
+    def __init__(self, func: Callable[..., T], *args, **kwargs):
         self._func = functools.partial(intercept_args(func), *args, **kwargs)
         self._result = UNSET
 

@@ -5,7 +5,7 @@ from pif import providers, wiring
 
 
 def provide(s: str) -> providers.Singleton[str]:
-    return providers.Singleton[str](lambda: f"{s}_injected")
+    return providers.Singleton(lambda: f"{s}_injected")
 
 
 def my_func(a: str = provide("a")):
@@ -49,7 +49,7 @@ def test_patch_lazy():
     assert not mock.call_count
 
     @wiring.inject
-    def func(v=providers.Singleton[MagicMock](lambda: mock)):
+    def func(v=providers.Singleton(lambda: mock)):
         return v()
 
     assert not mock.call_count

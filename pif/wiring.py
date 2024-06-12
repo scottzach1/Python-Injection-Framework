@@ -13,9 +13,11 @@ import importlib
 import inspect
 import itertools
 import types
-from typing import Any, Callable
+from typing import Any, Callable, TypeVar
 
 from pif.providers.provider import Provider
+
+__all__ = ("intercept", "patch_args", "inject", "is_patched", "patch_method", "unpatch_method", "wire", "unwire")
 
 
 def intercept(func):
@@ -62,7 +64,10 @@ def patch_args(
     return args, kwargs
 
 
-def inject[T: Callable](func: T) -> T:
+TCallable = TypeVar("TCallable", bound=Callable)
+
+
+def inject(func: TCallable) -> TCallable:
     """
     Get a decorated copy of `func` with patched arguments.
 
@@ -97,7 +102,7 @@ def is_patched(func: Callable | types.FunctionType) -> bool:
     return hasattr(func, "_patched_func")
 
 
-def patch_method[T: Callable | types.FunctionType](func: T) -> T:
+def patch_method(func: TCallable) -> TCallable:
     """
     Return a "patched" version of the method provided.
 
@@ -112,7 +117,7 @@ def patch_method[T: Callable | types.FunctionType](func: T) -> T:
     return func
 
 
-def unpatch_method[T: Callable | types.FunctionType](func: T) -> T:
+def unpatch_method(func: TCallable) -> TCallable:
     """
     Get an "unpatched" copy of a method.
 

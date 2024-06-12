@@ -9,8 +9,8 @@ def test_override_standard_shallow():
     """
     Testing basic override logic for providers.
     """
-    provide_a = providers.Factory[str](lambda: "a")
-    provide_b = providers.Factory[str](lambda: "b")
+    provide_a = providers.Factory(lambda: "a")
+    provide_b = providers.Factory(lambda: "b")
     assert provide_a() == "a"
     assert provide_b() == "b"
 
@@ -35,8 +35,8 @@ def test_override_contextmanager_shallow():
     """
     Testing basic override logic for providers with contextmanager.
     """
-    provide_a = providers.Factory[str](lambda: "a")
-    provide_b = providers.Factory[str](lambda: "b")
+    provide_a = providers.Factory(lambda: "a")
+    provide_b = providers.Factory(lambda: "b")
 
     assert provide_a() == "a"
     assert provide_b() == "b"
@@ -57,9 +57,9 @@ def test_override_standard_nested():
     """
     Testing nested override logic for providers.
     """
-    provide_a = providers.Factory[str](lambda: "a")
-    provide_b = providers.Factory[str](lambda: "b")
-    provide_c = providers.Factory[str](lambda: "c")
+    provide_a = providers.Factory(lambda: "a")
+    provide_b = providers.Factory(lambda: "b")
+    provide_c = providers.Factory(lambda: "c")
 
     assert provide_a() == "a"
     assert provide_b() == "b"
@@ -87,9 +87,9 @@ def test_override_contextmanager_nested():
     """
     Testing nested override logic for providers with contextmanager.
     """
-    provide_a = providers.Factory[str](lambda: "a")
-    provide_b = providers.Factory[str](lambda: "b")
-    provide_c = providers.Factory[str](lambda: "c")
+    provide_a = providers.Factory(lambda: "a")
+    provide_b = providers.Factory(lambda: "b")
+    provide_c = providers.Factory(lambda: "c")
 
     assert provide_a() == "a"
     assert provide_b() == "b"
@@ -157,12 +157,12 @@ def test_singleton():
     """
     Checking the singleton provider creates only once.
     """
-    provider = providers.Singleton[dict](dict, a=1, b=2)
+    provider = providers.Singleton(dict, a=1, b=2)
 
     dict_1 = provider()
     dict_2 = provider()
 
-    with provider.override(providers.Singleton[dict](dict, a=1, b=2)):
+    with provider.override(providers.Singleton(dict, a=1, b=2)):
         dict_alt = provider()
 
     dict_3 = provider()
@@ -180,12 +180,12 @@ def test_factory():
     """
     Checking the factory provider creates every single time.
     """
-    provider = providers.Factory[dict](dict, a=1, b=2)
+    provider = providers.Factory(dict, a=1, b=2)
 
     dict_1 = provider()
     dict_2 = provider()
 
-    with provider.override(providers.Factory[dict](dict, a=1, b=2)):
+    with provider.override(providers.Factory(dict, a=1, b=2)):
         dict_alt = provider()
 
     dict_3 = provider()
@@ -209,10 +209,10 @@ def test_transitive_factory_wired():
     """
     model = namedtuple("Model", "a b")
 
-    provider_a = providers.Factory[str](lambda: "a")
-    provider_b = providers.Factory[str](lambda: "b")
+    provider_a = providers.Factory(lambda: "a")
+    provider_b = providers.Factory(lambda: "b")
 
-    provider = providers.Factory[tuple](model, provider_a, b=provider_b)
+    provider = providers.Factory(model, provider_a, b=provider_b)
 
     assert provider_a() == "a"
     assert provider_b() == "b"
@@ -230,12 +230,12 @@ def test_transitive_factory_override():
     """
     model = namedtuple("Model", "a b")
 
-    provider_a = providers.Factory[str](lambda: "a")
-    provider_b = providers.Factory[str](lambda: "b")
+    provider_a = providers.Factory(lambda: "a")
+    provider_b = providers.Factory(lambda: "b")
     assert provider_a() == "a"
     assert provider_b() == "b"
 
-    provider = providers.Factory[tuple](model, provider_a, b=provider_b)
+    provider = providers.Factory(model, provider_a, b=provider_b)
 
     model_1 = provider()
     model_2 = provider()
@@ -269,12 +269,12 @@ def test_transitive_singleton_wired():
     """
     model = namedtuple("Model", "a b")
 
-    provider_a = providers.Singleton[str](lambda: "a")
-    provider_b = providers.Singleton[str](lambda: "b")
+    provider_a = providers.Singleton(lambda: "a")
+    provider_b = providers.Singleton(lambda: "b")
     assert provider_a() == "a"
     assert provider_b() == "b"
 
-    provider = providers.Singleton[tuple](model, provider_a, provider_b)
+    provider = providers.Singleton(model, provider_a, provider_b)
 
     model_1 = provider()
     model_2 = provider()
@@ -289,12 +289,12 @@ def test_transitive_singleton_override():
     """
     model = namedtuple("Model", "a b")
 
-    provider_a = providers.Singleton[str](lambda: "a")
-    provider_b = providers.Singleton[str](lambda: "b")
+    provider_a = providers.Singleton(lambda: "a")
+    provider_b = providers.Singleton(lambda: "b")
     assert provider_a() == "a"
     assert provider_b() == "b"
 
-    provider = providers.Singleton[tuple](model, provider_a, provider_b)
+    provider = providers.Singleton(model, provider_a, provider_b)
 
     model_1 = provider()
     model_2 = provider()
