@@ -31,7 +31,7 @@ optimal as it reduces necessary computation for expensive services and reduces
 
 #### Decorator Injection
 
-With this approach you can automatically inject functions at load time using the `@wiring.injected` decorator.
+With this approach you can automatically inject functions at load time using the `@wiring.inject` decorator.
 
 ```python
 from pif import wiring, providers
@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     OverrideProvider = providers.ExistingSingleton("overridden_1")
 
-    with StringProvider.override_existing(OverrideProvider):
+    with StringProvider.override(OverrideProvider):
         assert "overridden_1" == my_function()
 
         with OverrideProvider.override_existing("overridden_2"):
