@@ -47,7 +47,7 @@ class Provider[T](abc.ABC):
         """
         Override the current provider with an existing singleton.
         """
-        from .existing_singleton import ExistingSingleton
+        from pif.providers.existing_singleton import ExistingSingleton
 
         return self.override(ExistingSingleton(value))
 

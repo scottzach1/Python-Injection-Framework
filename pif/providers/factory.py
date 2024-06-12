@@ -12,7 +12,7 @@ import functools
 from typing import Callable
 
 from pif.providers.provider import Provider
-from pif.wiring import intercept
+from pif.providers.util import intercept_args
 
 
 class Factory[T](Provider):
@@ -23,7 +23,7 @@ class Factory[T](Provider):
     __slots__ = ("_func", "_depends")
 
     def __init__(self, func: Callable[[...], T], *args, **kwargs):
-        self._func = functools.partial(intercept(func), *args, **kwargs)
+        self._func = functools.partial(intercept_args(func), *args, **kwargs)
 
     def _evaluate(self) -> T:
         return self._func()
