@@ -36,7 +36,7 @@ jobs:
           anybadge --overwrite --value="${{ steps.ruff.outcome }}" --label=ruff --file=badges/ruff.svg success=green failure=red
           anybadge --overwrite --label=version --value="v$(poetry version --short)" --file=badges/version.svg --color='green'
       - name: Publish badges to GitHub Pages
-        if: (success() || failure()) && (github.ref_name == github.event.repository.default_branch)
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: badges/
@@ -64,7 +64,7 @@ jobs:
           anybadge --overwrite --value="${{ steps.pytest.outcome }}" --label=pytest --file=badges/pytest.svg success=green failure=red
           anybadge --overwrite --value="$(coverage report --format=total)" --file=badges/coverage.svg coverage
       - name: Publish badges to GitHub Pages
-        if: (success() || failure()) && (github.ref_name == github.event.repository.default_branch)
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: badges/
