@@ -15,69 +15,66 @@ permissions:
 
 jobs:
   ruff:
-    name: "Ruff Linting"
+    name: Ruff Linting
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Setup Poetry
-        uses: ./.github/actions/setup-poetry
+      - name: Install UV
+        uses: astral-sh/setup-uv@v4
+      - name: Set up Python
+        run: uv python install
+      - name: Install the project
+        run: uv sync --dev
       - name: Ruff (linting + formating)
         id: ruff
         run: |
-          source .venv/bin/activate
-          pre-commit run --all
+          uv run pre-commit run --all
       - name: Generate Badges
         if: success() || failure()
         run: |
-          source .venv/bin/activate
           mkdir -p badges/
-          anybadge --overwrite --label=python --value=3.12+ --file=badges/python.svg --color='dodgerblue'
-          anybadge --overwrite --value="${{ steps.ruff.outcome }}" --label=ruff --file=badges/ruff.svg success=green failure=red
-          anybadge --overwrite --label=version --value="v$(poetry version --short)" --file=badges/version.svg --color='green'
+          uv run anybadge --overwrite --label=python --value="$(cat .python-version)" --value-format='%.2f' --file=badges/python.svg --color='dodgerblue'
+          uv run anybadge --overwrite --value="${{ steps.ruff.outcome }}" --label=ruff --file=badges/ruff.svg success=green failure=red
+          uv run anybadge --overwrite --label=version --value="v$(uvx --from=toml-cli toml get --toml-path=pyproject.toml project.version)" --file=badges/version.svg --color='green'
       - name: Publish badges to GitHub Pages
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        if: (success() || failure()) && (github.ref_name == github.event.repository.default_branch)
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: badges/
           clean: false
 
   pytest:
+    name: Pytest Tests
     runs-on: ubuntu-latest
-    name: "Pytest Tests"
     strategy:
       matrix:
-        python-version: [ "3.10", "3.11", "3.12" ]
+        python-version: [ "3.11", "3.12", "3.13" ]
+      fail-fast: false
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v5
+      - name: Install UV
+        uses: astral-sh/setup-uv@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Setup Poetry
-        uses: ./.github/actions/setup-poetry
+      - name: Set up Python
+        run: uv python install
+      - name: Install the project
+        run: uv sync --dev
       - name: Run Pytest
         id: pytest
         run: |
-          source .venv/bin/activate
-          coverage run -m pytest tests/
+          uv run coverage run -m pytest tests/
       - name: Generate Badges
         if: success() || failure()
         run: |
-          source .venv/bin/activate
-          coverage report
+          uv run coverage report
           mkdir -p badges/
-          anybadge --overwrite --value="${{ steps.pytest.outcome }}" --label=pytest --file=badges/pytest.svg success=green failure=red
-          anybadge --overwrite --value="$(coverage report --format=total)" --file=badges/coverage.svg coverage
+          uv run anybadge --overwrite --value="${{ steps.pytest.outcome }}" --label=pytest --file=badges/pytest.svg success=green failure=red
+          uv run anybadge --overwrite --value="$(uv run coverage report --format=total)" --file=badges/coverage.svg coverage
       - name: Publish badges to GitHub Pages
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+        if: (success() || failure()) && (github.ref_name == github.event.repository.default_branch)
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           folder: badges/
@@ -96,11 +93,14 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Setup Poetry
-        uses: ./.github/actions/setup-poetry
+      - name: Install UV
+        uses: astral-sh/setup-uv@v4
+      - name: Set up Python
+        run: uv python install
+      - name: Install the project
+        run: uv sync --dev
       - name: Build Project
         run: |
-          source .venv/bin/activate
-          poetry build
+          uv build
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
