@@ -1,7 +1,7 @@
 import inspect
 from unittest.mock import MagicMock
 
-from pif import providers, wiring
+from scottzach1.pif import providers, wiring
 
 
 def provide(s: str) -> providers.Singleton[str]:

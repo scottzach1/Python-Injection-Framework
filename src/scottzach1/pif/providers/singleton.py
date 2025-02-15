@@ -12,8 +12,8 @@ import functools
 from collections.abc import Callable
 from typing import TypeVar
 
-from pif.providers.provider import Provider
-from pif.providers.util import intercept_args
+from scottzach1.pif.providers.provider import Provider
+from scottzach1.pif.providers.util import intercept_args
 
 __all__ = ("Singleton",)
 

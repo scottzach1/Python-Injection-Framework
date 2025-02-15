@@ -1,6 +1,6 @@
 import functools
 
-from pif.providers.provider import Provider
+from scottzach1.pif.providers.provider import Provider
 
 
 def intercept_args(func):

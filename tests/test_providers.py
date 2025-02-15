@@ -1,7 +1,7 @@
 from collections import namedtuple
 
 import pytest
-from pif import exceptions, providers
+from scottzach1.pif import exceptions, providers
 
 
 def test_override_standard_shallow():

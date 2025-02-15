@@ -1,4 +1,4 @@
-from pif import providers, wiring
+from scottzach1.pif import providers, wiring
 
 
 class ApiClient:

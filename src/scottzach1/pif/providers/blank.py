@@ -8,8 +8,8 @@
 #
 #  https://github.com/scottzach1/python-injector-framework
 
-from pif import exceptions
-from pif.providers.provider import Provider
+from scottzach1.pif import exceptions
+from scottzach1.pif.providers.provider import Provider
 
 
 class Blank(Provider):

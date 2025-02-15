@@ -16,7 +16,7 @@ import types
 from collections.abc import Callable
 from typing import Any, TypeVar
 
-from pif.providers.provider import Provider
+from scottzach1.pif.providers.provider import Provider
 
 __all__ = ("intercept", "patch_args", "inject", "is_patched", "patch_method", "unpatch_method", "wire", "unwire")
 

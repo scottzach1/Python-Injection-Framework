@@ -33,8 +33,8 @@ optimal as it reduces necessary computation for expensive services and reduces
 With this approach you can automatically inject functions at load time using the `@wiring.inject` decorator.
 
 ```python
-from pif import providers
-from pif import wiring
+from scottzach1.pif import providers
+from scottzach1.pif import wiring
 
 
 @wiring.inject  # <- automatically injects providers.Provider default arguments!
@@ -51,8 +51,8 @@ if __name__ == "__main__":
 With this approach you can wire all methods in the specified modules.
 
 ```python
-from pif import providers
-from pif import wiring
+from scottzach1.pif import providers
+from scottzach1.pif import wiring
 
 
 def my_function(a: str = providers.ExistingSingleton("hello world")):
@@ -76,8 +76,8 @@ If you want to patch a value all you need to do is call `.override()` on the pro
 override an existing singleton you may call the convenience method `.override_existing()`.
 
 ```python
-from pif import providers
-from pif import wiring
+from scottzach1.pif import providers
+from scottzach1.pif import wiring
 
 StringProvider = providers.ExistingSingleton("hello world")
 
@@ -100,8 +100,8 @@ if __name__ == "__main__":
 If you want more control around the override lifecycles then you may use the `Override` context manager.
 
 ```python
-from pif import providers
-from pif import wiring
+from scottzach1.pif import providers
+from scottzach1.pif import wiring
 
 StringProvider = providers.ExistingSingleton("hello world")
 
