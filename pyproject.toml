@@ -10,11 +10,11 @@ packages = [{ include = "pif" }]
 [tool.poetry.dependencies]
 python = "^3.10"
 
-[tool.poetry.group.dev.dependencies]
-pytest = "^8.2.1"
-pre-commit = "^3.7.1"
-coverage = "^7.5.3"
-anybadge = "^1.14.0"
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)4s] [%(name)9s] %(message)s (%(filename)s:%(lineno)s)"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
 
 [tool.ruff]
 line-length = 120
