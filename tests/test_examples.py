@@ -7,13 +7,29 @@ EXAMPLE_DIR = PROJECT_DIR / "examples"
 
 
 def pytest_generate_tests(metafunc):
-    if "example_name" in metafunc.fixturenames:
-        metafunc.parametrize("example_name", [item.name for item in EXAMPLE_DIR.glob("*") if item.is_dir()])
+    if "func" in metafunc.fixturenames:
+        targets = []
+        ids = []
+
+        for example_dir in EXAMPLE_DIR.glob("*"):
+            if not example_dir.is_dir():
+                continue
+
+            for test_file in example_dir.glob("test*.py"):
+                test_module = importlib.import_module(
+                    test_file.relative_to(PROJECT_DIR).with_suffix("").as_posix().replace("/", ".")
+                )
+                test_functions = inspect.getmembers(
+                    test_module,
+                    lambda x: inspect.isfunction(x) and x.__name__.startswith("test_"),
+                )
+
+                for name, func in test_functions:
+                    targets.append(func)
+                    ids.append(f"{test_file.relative_to(EXAMPLE_DIR).with_suffix('').as_posix()}/{name}")
+
+        metafunc.parametrize("func", targets, ids=ids)
 
 
-def test_example(example_name: str):
-    test_module = importlib.import_module(f"examples.{example_name}.test")
-    test_functions = inspect.getmembers(test_module, lambda x: inspect.isfunction(x) and x.__name__.startswith("test_"))
-
-    for _name, func in test_functions:
-        func()
+def test_example(func):
+    func()
