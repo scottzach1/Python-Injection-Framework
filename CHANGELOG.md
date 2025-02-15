@@ -5,22 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v0.1.0] - 2025-02-15
+
+Migrate to UV! 🌞
+
+### Added
+
+- CI
+    - `pip-audit` job
+
+### changed
+
+- Migrate to UV
+    - Move to src/ layout
+    - Replace poetry config with uv
+    - Update pipelines
+
+### Fixed
+
+### Removed
+
+- Poetry
+    - `[tool.poetry]` from `pyproject.toml`
+    - `poetry.lock` file
+
 ## [v0.0.2] - 2024-06-12
 
 Add language support for 3.10! 🐍
 
-## Added
+### Added
 
 - Language support for Python 3.10
     - Drop 3.12 generics syntax usage
     - Drop typing.Self usage
     - Add matrix testing for 3.10, 3.11, 3.12 versions
 
-## Changed
+### Changed
 
 - Publish badges only on tags pipeline
 
-## Fixed
+### Fixed
 
 - Circular imports bug for wiring.intercept
 - Small documentation changes
@@ -29,16 +53,16 @@ Add language support for 3.10! 🐍
 
 Evaluate transitive Providers! ↩️
 
-## Added
+### Added
 
 - Factory/Singleton now evaluate Provider arguments at runtime
 
-## Changed
+### Changed
 
 - Renamed `BlankProvider` -> `Blank`
 - Moved providers into dedicated package
 
-## Fixed
+### Fixed
 
 - Broken example in examples/simple_service
 
