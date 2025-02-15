@@ -11,8 +11,6 @@ A simple Python dependency injection framework.
 
 ## Usage
 
-**This project is under active development. The following example does not represent the final state for the project.**
-
 You can install this project from pypi.
 
 ```shell
