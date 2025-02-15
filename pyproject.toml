@@ -1,16 +1,25 @@
-[tool.poetry]
+[project]
 name = "python-injection-framework"
 version = "0.0.2"
 description = "Another Python Dependency injector framework."
-authors = ["Zac Scott <zac.scott11@gmail.com>"]
-license = "BSD-3"
 readme = "README.md"
-packages = [{ include = "pif" }]
+requires-python = "<4.0,>=3.11"
+authors = [
+    { name = "Zac Scott", email = "zac.scott11@gmail.com" },
+]
+license = { text = "BSD-3" }
+dependencies = []
 
-[tool.poetry.dependencies]
-python = "^3.10"
+[dependency-groups]
+dev = [
+    "anybadge>=1.16.0",
+    "coverage>=7.6.12",
+    "pre-commit>=4.1.0",
+    "pytest>=8.3.4",
+]
 
 [tool.pytest.ini_options]
+pythonpath = "src"
 log_cli = true
 log_cli_level = "INFO"
 log_cli_format = "%(asctime)s [%(levelname)4s] [%(name)9s] %(message)s (%(filename)s:%(lineno)s)"
@@ -33,7 +42,3 @@ fixable = ["ALL"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]  # Unused imports
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"

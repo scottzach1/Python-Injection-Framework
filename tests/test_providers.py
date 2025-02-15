@@ -1,7 +1,6 @@
 from collections import namedtuple
 
 import pytest
-
 from pif import exceptions, providers
 
 

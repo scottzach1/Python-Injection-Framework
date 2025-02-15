@@ -34,16 +34,17 @@ optimal as it reduces necessary computation for expensive services and reduces
 With this approach you can automatically inject functions at load time using the `@wiring.inject` decorator.
 
 ```python
-from pif import wiring, providers
+from pif import providers
+from pif import wiring
 
 
 @wiring.inject  # <- automatically injects providers.Provider default arguments!
 def my_function(a: str = providers.ExistingSingleton("hello world")):
-    return a
+   return a
 
 
 if __name__ == "__main__":
-    assert "hello world" == my_function()
+   assert "hello world" == my_function()
 ```
 
 ### Module Injection
@@ -51,17 +52,18 @@ if __name__ == "__main__":
 With this approach you can wire all methods in the specified modules.
 
 ```python
-from pif import wiring, providers
+from pif import providers
+from pif import wiring
 
 
 def my_function(a: str = providers.ExistingSingleton("hello world")):
-    return a
+   return a
 
 
 if __name__ == "__main__":
-    wiring.wire([__name__])  # <- dynamically inject methods with providers.Provider default arguments!
+   wiring.wire([__name__])  # <- dynamically inject methods with providers.Provider default arguments!
 
-    assert "hello world" == my_function()
+   assert "hello world" == my_function()
 ```
 
 ### Overriding
@@ -75,22 +77,23 @@ If you want to patch a value all you need to do is call `.override()` on the pro
 override an existing singleton you may call the convenience method `.override_existing()`.
 
 ```python
-from pif import wiring, providers
+from pif import providers
+from pif import wiring
 
 StringProvider = providers.ExistingSingleton("hello world")
 
 
 @wiring.inject
 def my_function(a: str = StringProvider):
-    return a
+   return a
 
 
 if __name__ == "__main__":
-    assert "hello world" == my_function()
+   assert "hello world" == my_function()
 
-    override = StringProvider.override_existing("overridden_1")
+   override = StringProvider.override_existing("overridden_1")
 
-    assert "overridden_1"
+   assert "overridden_1"
 ```
 
 ### Context Managers
@@ -98,30 +101,31 @@ if __name__ == "__main__":
 If you want more control around the override lifecycles then you may use the `Override` context manager.
 
 ```python
-from pif import wiring, providers
+from pif import providers
+from pif import wiring
 
 StringProvider = providers.ExistingSingleton("hello world")
 
 
 @wiring.inject
 def my_function(a: str = StringProvider):
-    return a
+   return a
 
 
 if __name__ == "__main__":
-    assert "hello world" == my_function()
+   assert "hello world" == my_function()
 
-    OverrideProvider = providers.ExistingSingleton("overridden_1")
+   OverrideProvider = providers.ExistingSingleton("overridden_1")
 
-    with StringProvider.override(OverrideProvider):
-        assert "overridden_1" == my_function()
+   with StringProvider.override(OverrideProvider):
+      assert "overridden_1" == my_function()
 
-        with OverrideProvider.override_existing("overridden_2"):
-            assert "overridden_2" == my_function()  # You can even stack overrides!!
+      with OverrideProvider.override_existing("overridden_2"):
+         assert "overridden_2" == my_function()  # You can even stack overrides!!
 
-        assert "overridden_1" == my_function()
+      assert "overridden_1" == my_function()
 
-    assert "hello world" == my_function()
+   assert "hello world" == my_function()
 ```
 
 ## Examples
@@ -130,12 +134,12 @@ If you would like to see more examples, feel free to check out [examples/](examp
 
 ## Contributing
 
-1. Clone the repository and configure Poetry 🪄
+1. Clone the repository and setup with uv 🪄
 
     ```shell
     git clone git@github.com:scottzach1/Python-Injection-Framework.git
     cd Python-Injection-Framework
-    poetry install
+    uv sync --dev
     ```
 
 2. Configure pre-commit hooks 🪝
@@ -149,7 +153,7 @@ If you would like to see more examples, feel free to check out [examples/](examp
 4. Run test cases 🧪
 
     ```shell
-    pytest tests/
+    pytest
     ```
 
 5. Submit a Pull Request ↖️

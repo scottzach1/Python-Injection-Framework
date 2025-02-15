@@ -13,7 +13,8 @@ import importlib
 import inspect
 import itertools
 import types
-from typing import Any, Callable, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
 from pif.providers.provider import Provider
 
