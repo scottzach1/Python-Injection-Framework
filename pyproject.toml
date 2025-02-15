@@ -1,6 +1,6 @@
 [project]
 name = "python-injection-framework"
-version = "0.1.0"
+version = "1.0.0"
 description = "Another Python Dependency injector framework."
 readme = "README.md"
 requires-python = "<4.0,>=3.11"

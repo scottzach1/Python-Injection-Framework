@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v1.0.0] - 2025-02-15
+
+Move to scottzach1 vendor namespace! 📦️
+
+### Added
+
+### Changed
+
+- Move to scottzach1 vendor namespace (see discussion at [#2](https://github.com/scottzach1/Python-Injection-Framework/issues/2))
+
+### Fixed
+
+### Removed
+
 ## [v0.1.0] - 2025-02-15
 
 Migrate to UV! 🌞
@@ -14,7 +28,7 @@ Migrate to UV! 🌞
 - CI
     - `pip-audit` job
 
-### changed
+### Changed
 
 - Migrate to UV
     - Move to src/ layout
