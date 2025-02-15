@@ -1,6 +1,6 @@
 from unittest.mock import MagicMock
 
-import main
+from examples.simple_service import main
 
 
 def test_main():
