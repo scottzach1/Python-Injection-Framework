@@ -80,10 +80,44 @@ jobs:
           folder: badges/
           clean: false
 
+  audit:
+    name: Pip Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Install UV
+        uses: astral-sh/setup-uv@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"
+      - name: Install the project
+        run: uv sync --dev
+      - name: Generate dependency tree
+        run: uv tree
+      - name: Generate requirements.txt
+        run: |
+          uv pip compile pyproject.toml -o requirements.txt
+      - name: Pip Audit
+        id: audit
+        run: uvx pip-audit -r requirements.txt --fix
+      - name: Generate Badges
+        if: success() || failure()
+        run: |
+          mkdir -p badges/
+          uv run anybadge --overwrite --value="${{ steps.audit.outcome }}" --label=audit --file=badges/audit.svg success=green failure=red
+      - name: Publish badges to GitHub Pages
+        if: (success() || failure()) && (github.ref_name == github.event.repository.default_branch)
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: badges/
+          clean: false
+
   pypi-publish:
     name: Upload release to PyPI
     runs-on: ubuntu-latest
-    needs: [ ruff, pytest ]
+    needs: [ ruff, pytest, audit ]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     environment:
       name: pypi

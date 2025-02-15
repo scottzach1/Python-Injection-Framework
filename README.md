@@ -5,6 +5,7 @@
 [![coverage](https://github.com/scottzach1/Python-Injector-Framework/blob/gh-pages/coverage.svg?raw=true)](https://github.com/scottzach1/Python-Injector-Framework/)
 [![pytest](https://github.com/scottzach1/Python-Injector-Framework/blob/gh-pages/pytest.svg?raw=true)](https://github.com/scottzach1/Python-Injector-Framework/)
 [![ruff](https://github.com/scottzach1/Python-Injector-Framework/blob/gh-pages/ruff.svg?raw=true)](https://github.com/scottzach1/Python-Injector-Framework/)
+[![audit](https://github.com/scottzach1/Python-Injector-Framework/blob/gh-pages/audit.svg?raw=true)](https://github.com/scottzach1/Python-Injector-Framework/)
 
 A simple Python dependency injection framework.
 
