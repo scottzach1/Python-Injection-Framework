@@ -1,6 +1,7 @@
 from collections import namedtuple
 
 import pytest
+
 from scottzach1.pif import exceptions, providers
 
 
@@ -167,7 +168,7 @@ def test_singleton():
     dict_3 = provider()
 
     assert dict_1 == {"a": 1, "b": 2}
-    assert dict_1 is not {"a": 1, "b": 2}
+    assert dict_1 is not {"a": 1, "b": 2}  # noqa: F632
     assert dict_2 is dict_1
     assert dict_3 is dict_1
 
@@ -190,7 +191,7 @@ def test_factory():
     dict_3 = provider()
 
     assert dict_1 == {"a": 1, "b": 2}
-    assert dict_1 is not {"a": 1, "b": 2}
+    assert dict_1 is not {"a": 1, "b": 2}  # noqa: F632
 
     assert dict_2 == dict_1
     assert dict_2 is not dict_1
